@@ -13,7 +13,7 @@ losses incurred through use of the program, however caused.
 
 
 Running
-=======
+=======  
 
 To run Jarcomp from the jar file, simply call it from a command prompt or shell:
    java -jar jarcomp_01.jar
