@@ -33,7 +33,7 @@ public class JarComp
 		// Pass two files to start with, or instruct to prompt
 		if (file1 == null) {
 			// no files given, so prompt for them
-			window.startCompare();
+			//window.startCompare();
 		}
 		else {
 			// at least one file given, so use it/them

@@ -72,6 +72,8 @@ public class CompareWindow
 	/** Flag to process md5 sums */
 	private boolean _checkMd5 = false;
 
+	private JButton _oldFileChoose = null;
+	private JButton _newFileChoose = null;
 
 	/**
 	 * Constructor
@@ -107,11 +109,29 @@ public class CompareWindow
 		JButton compareButton = new JButton("Compare ...");
 		compareButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				startCompare();
+				startCompare(_files[0], _files[1], false);
 			}
 		});
 		buttonPanel.add(compareButton);
 
+		_oldFileChoose = new JButton("choose old file");
+		_oldFileChoose.setEnabled(true);
+		_oldFileChoose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chooseFile(_files[0], _files[1], true);
+			}
+		});
+		//buttonPanel.add(_oldFileChoose);
+		
+		_newFileChoose = new JButton("choose new file");
+		_newFileChoose.setEnabled(true);
+		_newFileChoose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				chooseFile(_files[0], _files[1], false);
+			}
+		});
+		//buttonPanel.add(_newFileChoose);
+		
 		_refreshButton = new JButton("Refresh");
 		_refreshButton.setEnabled(false);
 		_refreshButton.addActionListener(new ActionListener() {
@@ -175,9 +195,9 @@ public class CompareWindow
 		JPanel detailsPanel = new JPanel();
 		detailsPanel.setLayout(new GridLayout(1, 2, 5, 5));
 		_detailsDisplays = new JarDetailsDisplay[2];
-		_detailsDisplays[0] = new JarDetailsDisplay("Old/Criterion file");
+		_detailsDisplays[0] = new JarDetailsDisplay("", _oldFileChoose);
 		detailsPanel.add(_detailsDisplays[0], BorderLayout.WEST);
-		_detailsDisplays[1] = new JarDetailsDisplay("New file");
+		_detailsDisplays[1] = new JarDetailsDisplay("", _newFileChoose);
 		detailsPanel.add(_detailsDisplays[1], BorderLayout.EAST);
 		topPanel.add(detailsPanel);
 		detailsPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -328,7 +348,7 @@ public class CompareWindow
 	{
 		startCompare(null, null, false);
 	}
-
+	
 	/**
 	 * Start the comparison using the two specified files
 	 * @param inFile1 first file
@@ -343,13 +363,19 @@ public class CompareWindow
 		File file1 = inFile1;
 		File file2 = inFile2;
 		if (file1==null || !file1.exists() || !file1.canRead()) {
-			file1 = selectFile("Select first file", null);
+			JOptionPane.showMessageDialog(_mainWindow, "The first file is not corect!\n"
+					+ "Please choose the old file '",
+					"Please choose file", JOptionPane.ERROR_MESSAGE);
+
 		}
 		// Bail if cancel pressed
 		if (file1 == null) {return;}
 		// Select second file if necessary
 		if (file2 == null || !file2.exists() || !file2.canRead()) {
-			file2 = selectFile("Select second file", file1);
+			JOptionPane.showMessageDialog(_mainWindow, "The second file is not corect!\n"
+					+ "Please choose the new file '",
+					"Please choose file", JOptionPane.ERROR_MESSAGE);
+
 		}
 		// Bail if cancel pressed
 		if (file2 == null) {return;}
@@ -357,8 +383,8 @@ public class CompareWindow
 		_files[1] = file2;
 
 		// Clear displays
-		_detailsDisplays[0].clear();
-		_detailsDisplays[1].clear();
+//		_detailsDisplays[0].clear();
+//		_detailsDisplays[1].clear();
 		_statusLabel.setText(" comparing...");
 
 		// Start separate thread to compare files
@@ -368,6 +394,52 @@ public class CompareWindow
 				doCompare();
 			}
 		}).start();
+	}
+
+	/**
+	 * Start the comparison using the two specified files
+	 * @param inFile1 first file
+	 * @param inFile2 second file
+	 * @param inMd5 true to check Md5 sums as well
+	 */
+	public void chooseFile(File inFile1, File inFile2, boolean isOldFile)
+	{
+		// Clear table model
+		_tableModel.reset();
+		File file1 = inFile1;
+		File file2 = inFile2;
+		if (isOldFile) {
+			file1 = selectFile("Select first file", null);
+//			if (file1 == null || !file1.exists() || !file1.canRead()) {
+//			}
+			// Bail if cancel pressed
+			if (file1 == null) {
+				return;
+			}
+			_files[0] = file1;
+			_detailsDisplays[0].setContents(file1, null, 0);
+		} else {
+			// Select second file if necessary
+			file2 = selectFile("Select second file", file1);
+//			if (file2 == null || !file2.exists() || !file2.canRead()) {
+//			}
+			// Bail if cancel pressed
+			if (file2 == null) {
+				return;
+			}
+			_files[1] = file2;
+			_detailsDisplays[1].setContents(file2, null, 0);
+		}
+		// Clear displays
+//		_statusLabel.setText(" comparing...");
+
+		// Start separate thread to compare files
+//		_checkMd5 = inMd5;
+//		new Thread(new Runnable() {
+//			public void run() {
+//				doCompare();
+//			}
+//		}).start();
 	}
 
 	/**
@@ -407,6 +479,8 @@ public class CompareWindow
 		_filterBox.setEnabled(true);
 		_exportButton.setEnabled(true);
 		_loadButton.setEnabled(true);
+		_oldFileChoose.setEnabled(true);
+		_newFileChoose.setEnabled(true);
 		// Possibilities:
 		//      Jars have same size, same md5 sum, same contents
 		//      Jars have same size but different md5 sum, different contents

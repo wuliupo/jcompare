@@ -5,6 +5,7 @@ import java.awt.GridBagLayout;
 import java.io.File;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EtchedBorder;
@@ -23,7 +24,7 @@ public class JarDetailsDisplay extends JPanel
 	/**
 	 * Constructor
 	 */
-	public JarDetailsDisplay(String title)
+	public JarDetailsDisplay(String title, JButton button)
 	{
 		setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -37,6 +38,8 @@ public class JarDetailsDisplay extends JPanel
 		
 		c.gridy = 0;
 		c.gridwidth = 2;
+		add(button, c);
+		c.gridy += 1;
 		add(new JLabel(title), c);
 		c.gridwidth = 1;
 		
@@ -77,7 +80,13 @@ public class JarDetailsDisplay extends JPanel
 	{
 		_labels[0].setText(inFile.getName());
 		_labels[1].setText(inFile.getParent());
-		_labels[2].setText("" + inResults.getSize(inIndex));
-		_labels[3].setText("" + inResults.getNumFiles(inIndex));
+		if (inResults!=null){
+			_labels[2].setText("" + inResults.getSize(inIndex));
+			_labels[3].setText("" + inResults.getNumFiles(inIndex));
+		} else {
+			_labels[2].setText("");
+			_labels[3].setText("");
+		}
+		
 	}
 }
